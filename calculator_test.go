@@ -24,31 +24,34 @@ func TestSubtract(t *testing.T) {
 }
 
 type TestCase struct {
-	A    float64
-	B    float64
-	want float64
+	method string
+	got    interface{}
+	want   float64
 }
 
-func TestMultiply(t *testing.T) {
+func TestCalculator(t *testing.T) {
 	t.Parallel()
 	testCases := []TestCase{
 		{
-			A:    2,
-			B:    2,
-			want: 4,
+			method: "Add",
+			got:    calculator.Add(2, 2),
+			want:   4,
 		},
 		{
-			A:    -3,
-			B:    3,
-			want: -9,
+			method: "Subtract",
+			got:    calculator.Subtract(3, 5),
+			want:   -2,
+		},
+		{
+			method: "Multiply",
+			got:    calculator.Multiply(4, 20),
+			want:   80,
 		},
 	}
 
 	for _, tc := range testCases {
-		got := calculator.Multiply(tc.A, tc.B)
-		if tc.want != got {
-			t.Errorf("Multiply(%f, %f): want %f, got %f", 2.0, 2.0, tc.want, got)
+		if tc.want != tc.got {
+			t.Errorf("%s: want %f, got %f", tc.method, tc.want, tc.got)
 		}
 	}
-
 }
