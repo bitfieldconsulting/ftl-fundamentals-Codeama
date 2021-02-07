@@ -86,3 +86,22 @@ func TestCalculator(t *testing.T) {
 		})
 	}
 }
+
+type TestCaseDivide struct {
+	name        string
+	a, b        float64
+	errExpected bool
+}
+
+func TestDivide(t *testing.T) {
+	tc := TestCaseDivide{
+		a: 5, b: 0,
+		errExpected: true,
+	}
+
+	_, err := calculator.Divide(tc.a, tc.b)
+
+	if err == nil {
+		t.Errorf("Divide(%f, %f): want %t, got %v", tc.a, tc.b, tc.errExpected, err)
+	}
+}
