@@ -25,5 +25,5 @@ func Divide(a, b float64) (float64, error) {
 		return a / b, nil
 	}
 
-	return -1, fmt.Errorf("%f is an invalid denominator", b)
+	return 0, fmt.Errorf("%f is an invalid denominator", b)
 }

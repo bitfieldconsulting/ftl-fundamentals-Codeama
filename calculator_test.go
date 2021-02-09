@@ -88,20 +88,58 @@ func TestCalculator(t *testing.T) {
 }
 
 type TestCaseDivide struct {
-	name        string
 	a, b        float64
+	f           func(float64, float64) (float64, error)
+	want        float64
 	errExpected bool
 }
 
 func TestDivide(t *testing.T) {
-	tc := TestCaseDivide{
-		a: 5, b: 0,
-		errExpected: true,
+	testCases := []TestCaseDivide{
+		{
+			a: 5, b: 0,
+			f:           calculator.Divide,
+			want:        0,
+			errExpected: true,
+		},
+		{
+			a: 10, b: 2.5,
+			f:           calculator.Divide,
+			want:        4,
+			errExpected: false,
+		},
+		{
+			a: 28, b: 2,
+			f:           calculator.Divide,
+			want:        14,
+			errExpected: false,
+		},
+		{
+			a: 1, b: 1,
+			f:           calculator.Divide,
+			want:        1,
+			errExpected: false,
+		},
+		{
+			a: 0, b: 2.5,
+			f:           calculator.Divide,
+			want:        0,
+			errExpected: false,
+		},
 	}
 
-	_, err := calculator.Divide(tc.a, tc.b)
+	for _, tc := range testCases {
+		var errorReturned bool = false
+		got, err := tc.f(tc.a, tc.b)
+		if err != nil {
+			errorReturned = true
+		}
+		if tc.errExpected != errorReturned {
+			t.Errorf("Divide(%f, %f): Expected error but got %v", tc.a, tc.b, err)
+		}
+		if got != tc.want {
+			t.Errorf("Divide(%f, %f): want %f, got %f", tc.a, tc.b, tc.want, got)
+		}
 
-	if err == nil {
-		t.Errorf("Divide(%f, %f): want %t, got %v", tc.a, tc.b, tc.errExpected, err)
 	}
 }
