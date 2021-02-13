@@ -129,15 +129,13 @@ func TestDivide(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		var errorReturned bool = false
 		got, err := tc.f(tc.a, tc.b)
-		if err != nil {
-			errorReturned = true
-		}
+		errorReturned := (err != nil)
+
 		if tc.errExpected != errorReturned {
-			t.Errorf("Divide(%f, %f): Expected error but got %v", tc.a, tc.b, err)
+			t.Fatalf("Divide(%f, %f): Expected error but got %v", tc.a, tc.b, err)
 		}
-		if got != tc.want {
+		if !tc.errExpected && tc.want != got {
 			t.Errorf("Divide(%f, %f): want %f, got %f", tc.a, tc.b, tc.want, got)
 		}
 
