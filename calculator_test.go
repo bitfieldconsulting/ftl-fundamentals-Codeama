@@ -25,8 +25,8 @@ func TestSubtract(t *testing.T) {
 
 type TestCase struct {
 	name string
-	a, b float64
-	f    func(float64, float64) float64
+	n    []float64
+	f    func(n ...float64) float64
 	want float64
 }
 
@@ -34,52 +34,52 @@ func TestCalculator(t *testing.T) {
 	t.Parallel()
 	testCases := []TestCase{
 		{
-			name: "Add two positive integers",
-			a:    2, b: 2,
+			name: "Add three positive integers",
+			n:    []float64{2, 2, 8},
 			f:    calculator.Add,
-			want: 4,
+			want: 12,
 		},
 		{
-			name: "Add two negative integers",
-			a:    -2, b: -2,
+			name: "Add multiple negative and positive integers",
+			n:    []float64{-2, -2, 23, 40, 0},
 			f:    calculator.Add,
-			want: -4,
+			want: 59,
 		},
 		{
 			name: "Add a positive integer and a negative fraction ",
-			a:    5, b: -2.48,
+			n:    []float64{5, -2.48},
 			f:    calculator.Add,
 			want: 2.52,
 		},
 		{
 			name: "Subtract a larger integer from a smaller integer",
-			a:    3, b: 5,
+			n:    []float64{3, 5},
 			f:    calculator.Subtract,
 			want: -2,
 		},
 		{
 			name: "Subtract a negative integer from a negative integer",
-			a:    -9, b: -5,
+			n:    []float64{-9, -5, 1},
 			f:    calculator.Subtract,
-			want: -4,
+			want: -5,
 		},
 		{
 			name: "Multiply two positive integers",
-			a:    4, b: 20,
+			n:    []float64{4, 20},
 			f:    calculator.Multiply,
 			want: 80,
 		},
 		{
-			name: "Multiply a positive fraction by a negative fraction",
-			a:    4, b: -9,
+			name: "Multiply positive and a negative numbers",
+			n:    []float64{4, -9, 2},
 			f:    calculator.Multiply,
-			want: -36,
+			want: -72,
 		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			got := tc.f(tc.a, tc.b)
+			got := tc.f(tc.n...)
 			if tc.want != got {
 				t.Errorf("want %f, got %f", tc.want, got)
 			}
@@ -88,8 +88,7 @@ func TestCalculator(t *testing.T) {
 }
 
 type TestCaseDivide struct {
-	a, b        float64
-	f           func(float64, float64) (float64, error)
+	n           []float64
 	want        float64
 	errExpected bool
 }
@@ -97,46 +96,46 @@ type TestCaseDivide struct {
 func TestDivide(t *testing.T) {
 	testCases := []TestCaseDivide{
 		{
-			a: 5, b: 0,
-			f:           calculator.Divide,
+			n:           []float64{5, 0, 4},
 			want:        0,
 			errExpected: true,
 		},
 		{
-			a: 10, b: 2.5,
-			f:           calculator.Divide,
+			n:           []float64{10, 2.5},
 			want:        4,
 			errExpected: false,
 		},
 		{
-			a: 28, b: 2,
-			f:           calculator.Divide,
+			n:           []float64{28, 2},
 			want:        14,
 			errExpected: false,
 		},
 		{
-			a: 1, b: 1,
-			f:           calculator.Divide,
+			n:           []float64{1, 1},
 			want:        1,
 			errExpected: false,
 		},
 		{
-			a: 0, b: 2.5,
-			f:           calculator.Divide,
+			n:           []float64{0, 2.5},
 			want:        0,
+			errExpected: false,
+		},
+		{
+			n:           []float64{20, 2.5, 2},
+			want:        4,
 			errExpected: false,
 		},
 	}
 
 	for _, tc := range testCases {
-		got, err := tc.f(tc.a, tc.b)
+		got, err := calculator.Divide(tc.n...)
 		errorReturned := (err != nil)
 
 		if tc.errExpected != errorReturned {
-			t.Fatalf("Divide(%f, %f): Expected error but got %v", tc.a, tc.b, err)
+			t.Fatalf("Divide(%f): Expected error but got %v", tc.n, err)
 		}
 		if !tc.errExpected && tc.want != got {
-			t.Errorf("Divide(%f, %f): want %f, got %f", tc.a, tc.b, tc.want, got)
+			t.Errorf("Divide(%f): want %f, got %f", tc.n, tc.want, got)
 		}
 
 	}
