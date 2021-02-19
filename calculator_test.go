@@ -2,37 +2,18 @@ package calculator_test
 
 import (
 	"calculator"
+	"math"
 	"testing"
 )
 
-func TestAdd(t *testing.T) {
-	t.Parallel()
-	var want float64 = 4
-	got := calculator.Add(2, 2)
-	if want != got {
-		t.Errorf("want %f, got %f", want, got)
-	}
-}
-
-func TestSubtract(t *testing.T) {
-	t.Parallel()
-	var want float64 = 2
-	got := calculator.Subtract(4, 2)
-	if want != got {
-		t.Errorf("Subtract(%f, %f): want %f, got %f", 4.0, 2.0, want, got)
-	}
-}
-
-type TestCase struct {
-	name string
-	n    []float64
-	f    func(n ...float64) float64
-	want float64
-}
-
 func TestCalculator(t *testing.T) {
 	t.Parallel()
-	testCases := []TestCase{
+	testCases := []struct{
+		name string
+		n    []float64
+		f    func(float64, float64, ...float64) float64
+		want float64
+	}{
 		{
 			name: "Add three positive integers",
 			n:    []float64{2, 2, 8},
@@ -65,9 +46,9 @@ func TestCalculator(t *testing.T) {
 		},
 		{
 			name: "Multiply two positive integers",
-			n:    []float64{4, 20},
+			n:    []float64{4, 1},
 			f:    calculator.Multiply,
-			want: 80,
+			want: 4,
 		},
 		{
 			name: "Multiply positive and a negative numbers",
@@ -79,22 +60,20 @@ func TestCalculator(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			got := tc.f(tc.n...)
+			got := tc.f(tc.n[0], tc.n[1], tc.n[2:]...)
 			if tc.want != got {
-				t.Errorf("want %f, got %f", tc.want, got)
+				t.Errorf("inputs: (%f, %f, %v): want %f, got %f", tc.n[0], tc.n[1], tc.n[2:], tc.want, got)
 			}
 		})
 	}
 }
 
-type TestCaseDivide struct {
-	n           []float64
-	want        float64
-	errExpected bool
-}
-
 func TestDivide(t *testing.T) {
-	testCases := []TestCaseDivide{
+	testCases := []struct{
+		n           []float64
+		want        float64
+		errExpected bool
+	}{
 		{
 			n:           []float64{5, 0, 4},
 			want:        0,
@@ -134,9 +113,35 @@ func TestDivide(t *testing.T) {
 		if tc.errExpected != errorReturned {
 			t.Fatalf("Divide(%f): Expected error but got %v", tc.n, err)
 		}
-		if !tc.errExpected && tc.want != got {
+		if !tc.errExpected && !closeEnough(tc.want, got) {
 			t.Errorf("Divide(%f): want %f, got %f", tc.n, tc.want, got)
 		}
+	}
+}
 
+func closeEnough(a, b float64) bool {
+	return math.Abs(a-b) < 0.1
+}
+
+func TestSqrt(t *testing.T) {
+	testCases := []struct{
+		input       float64
+		want        float64
+		errExpected bool
+	}{
+		{ input: 4, want: 2, errExpected: false },
+		{ input: 16, want: 4, errExpected: false },
+		{ input: 4.84, want: 2.2, errExpected: false },
+		{ input: -100, want: 999, errExpected: false },
+	}
+	for _, tc := range testCases {
+		got, err := calculator.Sqrt(tc.input)
+		errorReturned := (err != nil)
+		if tc.errExpected != errorReturned {
+			t.Fatalf("Sqrt(%f): unexpected error status %v", tc.input, err)
+		}
+		if !tc.errExpected && !closeEnough(tc.want, got) {
+			t.Errorf("Sqrt(%f): want %f, got %f", tc.input, tc.want, got)
+		}
 	}
 }
